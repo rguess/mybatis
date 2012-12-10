@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="org.guess.mybatis.bean.User">
+  
+  	<resultMap type="User" id="userMap" autoMapping="true">
+  		<id column="u_id" property="id"/>
+  		<collection property="address" ofType="Address">
+  			<id column="address_id" property="id"/>
+  			<result column="name" property="name"/>
+  			<result column="phone" property="phone"/>
+  			<result column="postcode" property="postcode"/>
+  		</collection>
+  	</resultMap>
+  	<insert id="add" parameterType="User">
+  		insert into t_user(username,password,nickname,type) 
+  			value(#{username},#{password},#{nickname},#{type})
+  	</insert>
+  	
+  	<update id="update" parameterType="User">
+  		update t_user set username=#{username},password=#{password},nickname=#{nickname},
+  			type=#{type} where id=#{id}
+  	</update>
+  	
+  	<delete id="delete" parameterType="int">
+  		delete from t_user where id=#{id}
+  	</delete>
+  	
+  	<select id="list" resultMap="userMap">
+  		select *,user.id as u_id,address.id as address_id from t_user as user
+  		right join t_address as address on user.id=address.user_id 
+  	</select>
+  	
+  	<select id="list_not_address" resultMap="userMap">
+  		select *,id as u_id from t_user where id not in(select user_id from t_address)
+  	</select>
+  	
+  	<select id="load" parameterType="int" resultMap="userMap">
+  		select *,user.id as u_id,address.id as address_id from t_user as user
+  		right join t_address as address on user.id=address.user_id
+  		where user.id=#{id}
+  	</select>
+  	
+  	<select id="find" parameterType="map" resultType="User">
+  		select *from t_user limit #{pageOffset},#{pageSize}
+  	</select>
+  	
+  	<select id="find_count" resultType="int">
+  		select count(*) from t_user
+   	</select>
+  	
+  </mapper>
